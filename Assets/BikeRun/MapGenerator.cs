@@ -35,9 +35,17 @@ namespace BikeRun
 
 		Queue<GameObject> carParts = new Queue<GameObject>();
 
+		public void Reset()
+		{
+			foreach (var obj in carParts) {
+				Destroy(obj);
+			}
+			carParts.Clear();
+			generatedLength = 0;
+		}
+
 		void Start()
 		{
-			Random.seed = 1;
 		}
 
 		void Update()

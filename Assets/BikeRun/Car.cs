@@ -33,20 +33,29 @@ namespace BikeRun
 				}
 			}
 			if (horizontal) {
+				Debug.Log("[GameManager] Game Over with collision to wall");
 				gameManager.GameOver();
 			}
 			jumpCount = 0;
 		}
 
+		void OnCollisionStay(Collision collision)
+		{
+			var eulerRotation = transform.rotation.eulerAngles;
+			if (85 <= eulerRotation.x && eulerRotation.x <= 275) {
+				Debug.Log("[GameManager] Game Over with over rotation");
+				gameManager.GameOver();
+			}
+		}
+
 		void Update()
 		{
-			if (transform.position.y < 0) {
+			if (transform.position.y < -3) {
+				Debug.Log("[GameManager] Game Over with under position");
 				gameManager.GameOver();
 			}
 
-			transform.position = new Vector3(transform.position.x + speed * Time.deltaTime, transform.position.y, 0);
-			var eulerRotation = transform.rotation.eulerAngles;
-			transform.rotation = Quaternion.Euler(new Vector3(eulerRotation.x, 90, 0));
+			transform.position = new Vector3(transform.position.x + speed, transform.position.y, 0);
 		}
 	}
 }
