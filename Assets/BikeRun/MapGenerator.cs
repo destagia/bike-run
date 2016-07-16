@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Wagen;
 
 namespace BikeRun
 {
-	public class MapGenerator : MonoBehaviour
+	public class MapGenerator : MonoBehaviour, IWagenStage
 	{
 		[SerializeField] GameObject partPrefab;
 
@@ -33,12 +34,24 @@ namespace BikeRun
 		/// </summary>
 		float prevPartHeight;
 
-		Queue<GameObject> carParts = new Queue<GameObject>();
+		Queue<MapPart> carParts = new Queue<MapPart>();
+
+		#region IWagenStage implementation
+
+		public List<IWagenPart> Parts {
+			get {
+				var parts = new List<IWagenPart>();
+				foreach (var p in carParts) { parts.Add(p); }
+				return parts;
+			}
+		}
+
+		#endregion
 
 		public void Reset()
 		{
-			foreach (var obj in carParts) {
-				Destroy(obj);
+			foreach (var part in carParts) {
+				Destroy(part.GameObject);
 			}
 			carParts.Clear();
 			generatedLength = 0;
@@ -53,7 +66,7 @@ namespace BikeRun
 			if (carParts.Count > 20) {
 				for (var i = 0; i < carParts.Count - 20; i++) {
 					var obj = carParts.Dequeue();
-					Destroy(obj);
+					Destroy(obj.GameObject);
 				}
 			}
 
@@ -64,7 +77,7 @@ namespace BikeRun
 					prevPartHeight = partOpt.Height;
 
 					var part = Instantiate<GameObject>(partPrefab);
-					carParts.Enqueue(part);
+					carParts.Enqueue(new MapPart(partOpt, part));
 					part.transform.position = new Vector3(partOpt.CenterPosition.x + generatedLength, 0, 0);
 					part.transform.localScale = new Vector3(partOpt.Width, partOpt.Height, 10);
 					generatedLength += partOpt.Width;
@@ -86,6 +99,23 @@ namespace BikeRun
 			part.Height = Mathf.Max(part.Height, minPartHeight);
 			part.Height = Mathf.Min(part.Height, maxPartWidth);
 			return part;
+		}
+	}
+
+	public class MapPart : IWagenPart
+	{
+		public Vector3 Position { get { return GameObject.transform.position; } }
+		public float Width { get { return option.Width; } }
+		public float Height { get { return option.Height; } }
+
+		public GameObject GameObject { get; private set; }
+
+		MapPartOption option;
+
+		public MapPart(MapPartOption option, GameObject gameObject)
+		{
+			this.GameObject = gameObject;
+			this.option = option;
 		}
 	}
 

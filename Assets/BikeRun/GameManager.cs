@@ -11,7 +11,7 @@ namespace BikeRun
 
 		public void GameOver()
 		{
-			car.transform.position = new Vector3(0, 8, 0);
+			car.Reset();
 			mapGenerator.Reset();
 		}
 	}

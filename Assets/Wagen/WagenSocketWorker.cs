@@ -40,16 +40,10 @@ namespace Wagen
 			byte[] messageBytes = enc.GetBytes(message + "\n");
 			stream.Write(messageBytes, 0, messageBytes.Length);
 			SpawnThread(() => {
-				var bytes = new Byte[1024];
+				var bytes = new Byte[1];
 				stream.Read(bytes, 0, bytes.Length);
-				var response = enc.GetString(bytes);
-				callback(response);
+				callback(enc.GetString(bytes).Trim());
 			});
-		}
-
-		public void ReceiveMessage()
-		{
-			
 		}
 	}
 }

@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Wagen;
 
 namespace BikeRun
 {
-	public class Car : MonoBehaviour
+	public class Car : MonoBehaviour, IWagenCar
 	{
 		[SerializeField] GameManager gameManager;
 
@@ -15,12 +16,35 @@ namespace BikeRun
 
 		int jumpCount;
 
+		#region IWagenCar implementation
+
+		public Vector3 Position {
+			get { return transform.position; }
+		}
+
+		public Vector3 Rotation {
+			get { return transform.rotation.eulerAngles; }
+		}
+
+		public int AvailableJumpCount {
+			get { return 2 - jumpCount; }
+		}
+
+		#endregion
+
 		public void Jump()
 		{
 			if (jumpCount++ >= 2) {
 				return;
 			}
 			rigid.AddForce(new Vector3(0, jumpStrength, 0), ForceMode.Impulse);
+		}
+
+		public void Reset()
+		{
+			transform.position = new Vector3(0, 8, 0);
+			transform.rotation = Quaternion.Euler(new Vector3(0, 90, 0));
+			rigid.angularVelocity = Vector3.zero;
 		}
 
 		void OnCollisionEnter(Collision collision)

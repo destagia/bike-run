@@ -17,14 +17,15 @@ namespace Wagen
 			worker.Dispose();
 		}
 
-		public bool Jump(WagenEnvironment env)
+		public bool ShouldJump(WagenEnvironment env)
 		{
 			var message = string.Join(",", new List<string>(ConvertStringArray(ConvertEnvironment(env))).ToArray());
-			UnityEngine.Debug.Log(message);
-			worker.SendMessage(message, res => {
-				UnityEngine.Debug.Log(res);
-			});
-			return false;
+			bool? isJump = null;
+
+			worker.SendMessage(message, res => isJump = res == "t");
+			while (!isJump.HasValue);
+
+			return isJump.Value;
 		}
 
 		IEnumerable<string> ConvertStringArray<T>(IEnumerable<T> enumerable)
