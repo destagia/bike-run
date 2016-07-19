@@ -26,7 +26,7 @@ namespace BikeRun
 		/// <summary>
 		/// 既に生成が終わっている長さ
 		/// </summary>
-		float generatedLength;
+		float generatedLength = 20;
 
 
 		/// <summary>
@@ -41,7 +41,9 @@ namespace BikeRun
 		public List<IWagenPart> Parts {
 			get {
 				var parts = new List<IWagenPart>();
-				foreach (var p in carParts) { parts.Add(p); }
+				foreach (var p in carParts) {
+					parts.Add(p);
+				}
 				return parts;
 			}
 		}
@@ -54,7 +56,7 @@ namespace BikeRun
 				Destroy(part.GameObject);
 			}
 			carParts.Clear();
-			generatedLength = 0;
+			generatedLength = 20;
 		}
 
 		void Start()
@@ -95,9 +97,18 @@ namespace BikeRun
 		{
 			var part = new MapPartOption();
 			part.Width = Random.value * (maxPartWidth - minPartWidth) + minPartWidth;
-			part.Height = prevHeight + Random.value * heightGap * 2 - heightGap;
-			part.Height = Mathf.Max(part.Height, minPartHeight);
-			part.Height = Mathf.Min(part.Height, maxPartWidth);
+			part.Width = Mathf.Max(part.Width, minPartWidth);
+			part.Width = Mathf.Min(part.Width, maxPartWidth);
+
+			part.Height = prevHeight;
+			while (Mathf.Abs(part.Height - prevHeight) < 2f) {
+				part.Height = prevHeight + (Random.value * 0.5f + 0.5f) * (Random.value < 0.5f ? -1 : 1) * heightGap;
+				if (part.Height >= maxPartHeight) {
+					part.Height = maxPartHeight - (Random.value * 0.5f + 0.5f) * heightGap;
+				} else if (part.Height <= minPartHeight) {
+					part.Height = minPartHeight + (Random.value * 0.5f + 0.5f) * heightGap;
+				}
+			}
 			return part;
 		}
 	}

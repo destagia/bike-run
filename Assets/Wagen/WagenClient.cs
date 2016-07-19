@@ -17,15 +17,45 @@ namespace Wagen
 			worker.Dispose();
 		}
 
+		public bool ShouldJump(float[] pixels)
+		{
+			var message = string.Join(",", new List<string>(ConvertStringArray(pixels)).ToArray());
+			message = "get_action:" + message + "\n";
+			bool? isJump = null;
+			worker.SendMessage(message, res => isJump = res == "t");
+			while (!isJump.HasValue) {
+
+			}
+			return isJump.Value;
+		}
+
 		public bool ShouldJump(WagenEnvironment env)
 		{
 			var message = string.Join(",", new List<string>(ConvertStringArray(ConvertEnvironment(env))).ToArray());
+			UnityEngine.Debug.Log(message);
+			message = "get_action:" + message + "\n";
 			bool? isJump = null;
 
 			worker.SendMessage(message, res => isJump = res == "t");
-			while (!isJump.HasValue);
+			while (!isJump.HasValue) {
+
+			}
 
 			return isJump.Value;
+		}
+
+		public void LearnWin()
+		{
+			var finish = false;
+			worker.SendMessage("learn_win:void\n", _ => finish = true);
+			while (!finish) {}
+		}
+
+		public void LearnLose()
+		{
+			var finish = false;
+			worker.SendMessage("learn_lose:void\n", _ => finish = true);
+			while (!finish) {}
 		}
 
 		IEnumerable<string> ConvertStringArray<T>(IEnumerable<T> enumerable)
@@ -44,7 +74,7 @@ namespace Wagen
 			yield return env.car.Rotation.x;
 			yield return env.car.Rotation.y;
 			yield return env.car.Rotation.z;
-			for (var i = 0; i < 20; i++) {
+			for (var i = 0; i < 3; i++) {
 				if (i < env.stage.Parts.Count) {
 					yield return env.stage.Parts[i].Position.x;
 					yield return env.stage.Parts[i].Position.y;

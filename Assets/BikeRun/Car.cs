@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
+using System.Linq;
 using Wagen;
 
 namespace BikeRun
@@ -11,6 +13,8 @@ namespace BikeRun
 		[SerializeField] Rigidbody rigid;
 		[SerializeField] float jumpStrength;
 		[SerializeField] float speed;
+
+		[SerializeField] Text meterLabel;
 
 		const float AngleMax = 45;
 
@@ -32,11 +36,18 @@ namespace BikeRun
 
 		#endregion
 
+		float lastJump;
+
 		public void Jump()
 		{
-			if (jumpCount++ >= 2) {
+			if (Time.time - lastJump < 0.3f) {
 				return;
 			}
+			if (jumpCount >= 2) {
+				return;
+			}
+			jumpCount++;
+			lastJump = Time.time;
 			rigid.AddForce(new Vector3(0, jumpStrength, 0), ForceMode.Impulse);
 		}
 
@@ -61,6 +72,7 @@ namespace BikeRun
 				gameManager.GameOver();
 			}
 			jumpCount = 0;
+			lastJump = 0;
 		}
 
 		void OnCollisionStay(Collision collision)
@@ -74,12 +86,24 @@ namespace BikeRun
 
 		void Update()
 		{
+			if (gameManager.IsGameOver) {
+				return;
+			}
+
+			meterLabel.text = transform.position.x.ToString();
+
+			if (transform.position.x > 500) {
+				gameManager.GameClear();
+				return;
+			}
+
 			if (transform.position.y < -3) {
 				Debug.Log("[GameManager] Game Over with under position");
 				gameManager.GameOver();
+				return;
 			}
 
-			transform.position = new Vector3(transform.position.x + speed, transform.position.y, 0);
+			transform.position = new Vector3(transform.position.x + speed * Time.deltaTime, transform.position.y, 0);
 		}
 	}
 }
