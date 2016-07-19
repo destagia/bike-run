@@ -6,15 +6,11 @@ using Wagen;
 
 namespace BikeRun
 {
-	public class Car : MonoBehaviour, IWagenCar
+	public class Car : MonoBehaviour, IWagenCar, ICar
 	{
-		[SerializeField] GameManager gameManager;
-
 		[SerializeField] Rigidbody rigid;
 		[SerializeField] float jumpStrength;
 		[SerializeField] float speed;
-
-		[SerializeField] Text meterLabel;
 
 		const float AngleMax = 45;
 
@@ -30,8 +26,23 @@ namespace BikeRun
 			get { return transform.rotation.eulerAngles; }
 		}
 
+		#endregion
+
 		public int AvailableJumpCount {
 			get { return 2 - jumpCount; }
+		}
+
+		#region ICar implementation
+
+		public bool IsCrashed { get; private set; }
+
+		public float CurrentMileage {
+			get { return transform.position.x; }
+		}
+
+		public void MoveForward()
+		{
+			transform.position = new Vector3(transform.position.x + speed * Time.deltaTime, transform.position.y, 0);
 		}
 
 		#endregion
@@ -56,6 +67,8 @@ namespace BikeRun
 			transform.position = new Vector3(0, 8, 0);
 			transform.rotation = Quaternion.Euler(new Vector3(0, 90, 0));
 			rigid.angularVelocity = Vector3.zero;
+			rigid.velocity = Vector3.zero;
+			IsCrashed = false;
 		}
 
 		void OnCollisionEnter(Collision collision)
@@ -69,7 +82,7 @@ namespace BikeRun
 			}
 			if (horizontal) {
 				Debug.Log("[GameManager] Game Over with collision to wall");
-				gameManager.GameOver();
+				IsCrashed = true;
 			}
 			jumpCount = 0;
 			lastJump = 0;
@@ -80,30 +93,21 @@ namespace BikeRun
 			var eulerRotation = transform.rotation.eulerAngles;
 			if (85 <= eulerRotation.x && eulerRotation.x <= 275) {
 				Debug.Log("[GameManager] Game Over with over rotation");
-				gameManager.GameOver();
+				IsCrashed = true;
 			}
 		}
 
 		void Update()
 		{
-			if (gameManager.IsGameOver) {
-				return;
-			}
-
-			meterLabel.text = transform.position.x.ToString();
-
-			if (transform.position.x > 500) {
-				gameManager.GameClear();
+			if (IsCrashed) {
 				return;
 			}
 
 			if (transform.position.y < -3) {
 				Debug.Log("[GameManager] Game Over with under position");
-				gameManager.GameOver();
+				IsCrashed = true;
 				return;
 			}
-
-			transform.position = new Vector3(transform.position.x + speed * Time.deltaTime, transform.position.y, 0);
 		}
 	}
 }

@@ -38,7 +38,6 @@ namespace Wagen
 		{
 			var enc = Encoding.UTF8;
 			byte[] messageBytes = enc.GetBytes(message + "\n");
-			Debug.Log(messageBytes.Length);
 			stream.Write(messageBytes, 0, messageBytes.Length);
 			SpawnThread(() => {
 				var bytes = new Byte[1];

@@ -17,45 +17,28 @@ namespace Wagen
 			worker.Dispose();
 		}
 
-		public bool ShouldJump(float[] pixels)
+		public void ShouldJump(float[] pixels, Action<bool> callback)
 		{
 			var message = string.Join(",", new List<string>(ConvertStringArray(pixels)).ToArray());
 			message = "get_action:" + message + "\n";
-			bool? isJump = null;
-			worker.SendMessage(message, res => isJump = res == "t");
-			while (!isJump.HasValue) {
-
-			}
-			return isJump.Value;
+			worker.SendMessage(message, res => callback.Invoke(res == "t"));
 		}
 
-		public bool ShouldJump(WagenEnvironment env)
+		public void ShouldJump(WagenEnvironment env, Action<bool> callback)
 		{
 			var message = string.Join(",", new List<string>(ConvertStringArray(ConvertEnvironment(env))).ToArray());
-			UnityEngine.Debug.Log(message);
 			message = "get_action:" + message + "\n";
-			bool? isJump = null;
-
-			worker.SendMessage(message, res => isJump = res == "t");
-			while (!isJump.HasValue) {
-
-			}
-
-			return isJump.Value;
+			worker.SendMessage(message, res => callback.Invoke(res == "t"));
 		}
 
-		public void LearnWin()
+		public void LearnWin(Action callback)
 		{
-			var finish = false;
-			worker.SendMessage("learn_win:void\n", _ => finish = true);
-			while (!finish) {}
+			worker.SendMessage("learn_win:void\n", _ => callback.Invoke());
 		}
 
-		public void LearnLose()
+		public void LearnLose(Action callback)
 		{
-			var finish = false;
-			worker.SendMessage("learn_lose:void\n", _ => finish = true);
-			while (!finish) {}
+			worker.SendMessage("learn_lose:void\n", _ => callback.Invoke());
 		}
 
 		IEnumerable<string> ConvertStringArray<T>(IEnumerable<T> enumerable)

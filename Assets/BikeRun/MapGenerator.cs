@@ -4,7 +4,7 @@ using Wagen;
 
 namespace BikeRun
 {
-	public class MapGenerator : MonoBehaviour, IWagenStage
+	public class MapGenerator : MonoBehaviour, IWagenStage, IMap
 	{
 		[SerializeField] GameObject partPrefab;
 

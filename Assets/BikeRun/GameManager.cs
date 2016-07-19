@@ -4,36 +4,96 @@ using UnityEngine.SceneManagement;
 
 namespace BikeRun
 {
-	public class GameManager : MonoBehaviour
+	public interface IResetable
 	{
-		[SerializeField] Car car;
-		[SerializeField] MapGenerator mapGenerator;
+		void Reset();
+	}
 
-		public bool IsGameOver { get; private set; }
-		public bool IsClear { get; private set; }
+	public interface ICar : IResetable
+	{
+		/// <summary>
+		/// 車が走行不能になっているかどうか
+		/// これがtrueを返したフレームでゲームは終了する
+		/// </summary>
+		bool IsCrashed { get; }
 
-		public void GameOver()
+		/// <summary>
+		/// 現在の車の走行距離
+		/// </summary>
+		/// <value>The current mileage.</value>
+		float CurrentMileage { get; }
+
+		int AvailableJumpCount { get; }
+
+		/// <summary>
+		/// 車を前にすすめる
+		/// </summary>
+		void MoveForward();
+
+		void Jump();
+	}
+
+	public interface IMap : IResetable
+	{
+	}
+
+	public interface IGameCallback
+	{
+		/// <summary>
+		/// ゲームが終了した時（失敗、もしくは成功）に呼ばれるコールバック
+		/// </summary>
+		/// <param name="goal">ゴールならtrue、失敗ならfalse</param>
+		void OnFinishGame(bool goal);
+	}
+
+	public interface IController
+	{
+		bool ShouldJump();
+	}
+
+	public class GameManager
+	{
+		readonly ICar car;
+		readonly IMap map;
+		readonly IGameCallback gameCallback;
+		readonly IController controller;
+
+		const float goalPointMileage = 300;
+
+		public GameManager(ICar car, IMap map, IGameCallback gameCallback, IController controller)
 		{
-			IsGameOver = true;
-			IsClear = false;
+			this.map = map;
+			this.car = car;
+			this.gameCallback = gameCallback;
+			this.controller = controller;
 		}
 
-		public void GameClear()
+		bool finish;
+
+		public void Update()
 		{
-			IsGameOver = true;
-			IsClear = true;
+			if (finish) { return; }
+
+			if (car.IsCrashed) { // Game Over
+				gameCallback.OnFinishGame(false);
+				finish = true;
+			} else if (car.CurrentMileage >= goalPointMileage) { // Game Clear
+				gameCallback.OnFinishGame(true);
+				finish = true;
+			} else {
+				if (controller.ShouldJump()) {
+					car.Jump();
+				}
+				car.MoveForward();
+			}
 		}
 
 		public void Restart()
 		{
 			car.Reset();
-			mapGenerator.Reset();
-			IsGameOver = false;
+			map.Reset();
+			finish = false;
 		}
 
-		void Awake()
-		{
-			Application.targetFrameRate = 20;
-		}
 	}
 }
