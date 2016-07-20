@@ -20,25 +20,25 @@ namespace Wagen
 		public void ShouldJump(float[] pixels, Action<bool> callback)
 		{
 			var message = string.Join(",", new List<string>(ConvertStringArray(pixels)).ToArray());
-			message = "get_action:" + message + "\n";
-			worker.SendMessage(message, res => callback.Invoke(res == "t"));
+			message = "get_action:" + message;
+			worker.SendMessage(message, res => { callback.Invoke(res == "t"); });
 		}
 
 		public void ShouldJump(WagenEnvironment env, Action<bool> callback)
 		{
 			var message = string.Join(",", new List<string>(ConvertStringArray(ConvertEnvironment(env))).ToArray());
-			message = "get_action:" + message + "\n";
+			message = "get_action:" + message;
 			worker.SendMessage(message, res => callback.Invoke(res == "t"));
 		}
 
 		public void LearnWin(Action callback)
 		{
-			worker.SendMessage("learn_win:void\n", _ => callback.Invoke());
+			worker.SendMessage("learn_win:void", _ => callback.Invoke());
 		}
 
 		public void LearnLose(Action callback)
 		{
-			worker.SendMessage("learn_lose:void\n", _ => callback.Invoke());
+			worker.SendMessage("learn_lose:void", _ => callback.Invoke());
 		}
 
 		IEnumerable<string> ConvertStringArray<T>(IEnumerable<T> enumerable)

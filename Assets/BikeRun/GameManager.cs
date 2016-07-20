@@ -72,11 +72,16 @@ namespace BikeRun
 
 		public void Update()
 		{
-			if (finish) { return; }
+			if (finish) {
+				Debug.Log("Finish return!");
+				return;
+			}
 
 			if (car.IsCrashed) { // Game Over
 				gameCallback.OnFinishGame(false);
+				Debug.Log("Finish Game!");
 				finish = true;
+				Debug.Log("Finish : " + finish);
 			} else if (car.CurrentMileage >= goalPointMileage) { // Game Clear
 				gameCallback.OnFinishGame(true);
 				finish = true;

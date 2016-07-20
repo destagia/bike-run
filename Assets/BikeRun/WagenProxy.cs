@@ -23,10 +23,13 @@ namespace BikeRun
 
 		public bool ShouldJump()
 		{
+			var start = DateTime.Now.Ticks;
 			var bytes = screenShooter.TakeGrayScaleShot(ScreenShotWidth, ScreenShotHeight);
 			bool? jump = null;
-			client.ShouldJump(bytes, shouldJump => jump = shouldJump);
-			while (!jump.HasValue) {
+			client.ShouldJump(bytes, shouldJump => {
+				jump = shouldJump;
+			});
+			while (!jump.HasValue && (DateTime.Now.Ticks - start) < 5000000) {
 			}
 			return jump.Value;
 		}

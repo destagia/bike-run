@@ -37,6 +37,8 @@ namespace BikeRun
 			}
 			if (!learning) {
 				gameManager.Update();
+			} else {
+				Debug.Log("learning...");
 			}
 		}
 
@@ -44,6 +46,7 @@ namespace BikeRun
 
 		public void OnFinishGame(bool goal)
 		{
+			Debug.Log("On Finish Game");
 			learning = true;
 			if (goal) {
 				wagenProxy.LearnWin(OnFinishLearning);
@@ -56,7 +59,7 @@ namespace BikeRun
 
 		void OnFinishLearning()
 		{
-			Debug.Log("On Finish");
+			Debug.Log("On Finish Learning");
 			learning = false;
 			onFinishHandler = gameManager.Restart;
 		}
