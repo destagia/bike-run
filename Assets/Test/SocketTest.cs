@@ -41,6 +41,9 @@ namespace Test
 	{
 		WagenClient client;
 
+		[SerializeField] string host;
+		[SerializeField] int port;
+
 		void OnDestroy()
 		{
 			if (client != null) {
@@ -50,7 +53,7 @@ namespace Test
 
 		void Start()
 		{
-			client = new WagenClient();
+			client = new WagenClient(host, port);
 		}
 
 		void Update()

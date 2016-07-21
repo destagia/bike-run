@@ -12,13 +12,15 @@ namespace BikeRun
 		WagenClient client;
 
 		[SerializeField] ScreenShotCamera screenShooter;
+		[SerializeField] string host;
+		[SerializeField] int port;
 
 		const int ScreenShotWidth = 64;
 		const int ScreenShotHeight = 36;
 
 		void Awake()
 		{
-			client = new WagenClient();
+			client = new WagenClient(host, port);
 		}
 
 		public bool ShouldJump()

@@ -13,9 +13,9 @@ namespace Wagen
 		TcpClient tcpClient;
 		NetworkStream stream;
 
-		public WagenSocketWorker()
+		public WagenSocketWorker(string host, int port)
 		{
-			tcpClient = new TcpClient("localhost", 43376);
+			tcpClient = new TcpClient(host, port);
 			stream = tcpClient.GetStream();
 		}
 

@@ -7,9 +7,9 @@ namespace Wagen
 	{
 		WagenSocketWorker worker;
 
-		public WagenClient()
+		public WagenClient(string host, int port)
 		{
-			worker = new WagenSocketWorker();
+			worker = new WagenSocketWorker(host, port);
 		}
 
 		public void Dispose()
