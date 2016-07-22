@@ -60,7 +60,7 @@ namespace Test
 		{
 			if (Input.GetKeyDown(KeyCode.A)) {
 				var env = new WagenEnvironment(new StubStage(), new StubCar());
-				client.ShouldJump(env, shouldJump => Debug.Log(shouldJump));
+				// client.ShouldJump(env, 0, false, shouldJump => Debug.Log(shouldJump));
 			}
 		}
 	}

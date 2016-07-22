@@ -18,6 +18,8 @@ namespace BikeRun
 		const int ScreenShotWidth = 64;
 		const int ScreenShotHeight = 36;
 
+		public int FrameCount { get; private set; }
+
 		void Awake()
 		{
 			client = new WagenClient(host, port);
@@ -25,25 +27,27 @@ namespace BikeRun
 
 		public bool ShouldJump()
 		{
-			var start = DateTime.Now.Ticks;
+			var start = DateTime.Now;
 			var bytes = screenShooter.TakeGrayScaleShot(ScreenShotWidth, ScreenShotHeight);
 			bool? jump = null;
-			client.ShouldJump(bytes, shouldJump => {
+			client.ShouldJump(bytes, 0, false, shouldJump => {
 				jump = shouldJump;
 			});
-			while (!jump.HasValue && (DateTime.Now.Ticks - start) < 5000000) {
+			while (!jump.HasValue && (DateTime.Now - start).Milliseconds < 500) {
 			}
-			return jump.Value;
+			FrameCount += 1;
+			return jump.GetValueOrDefault();
 		}
 
-		public void LearnLose(Action callback)
+		public void Learn(Action callback)
 		{
-			client.LearnLose(callback);
-		}
-
-		public void LearnWin(Action callback)
-		{
-			client.LearnWin(callback);
+			Debug.LogFormat("Current Frame : {0}", FrameCount);
+			if (FrameCount > 1000) {
+				client.Learn(callback);
+				FrameCount = 0;
+			} else {
+				callback();
+			}
 		}
 	}
 }

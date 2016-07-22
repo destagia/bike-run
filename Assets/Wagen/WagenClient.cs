@@ -17,28 +17,23 @@ namespace Wagen
 			worker.Dispose();
 		}
 
-		public void ShouldJump(float[] pixels, Action<bool> callback)
+		public void ShouldJump(float[] pixels, float prevReward, bool isGameEnd, Action<bool> callback)
 		{
-			var message = string.Join(",", new List<string>(ConvertStringArray(pixels)).ToArray());
-			message = "get_action:" + message;
+			var rawImage = string.Join(",", new List<string>(ConvertStringArray(pixels)).ToArray());
+			var message = string.Format("get_action:{0};{1};{2}", rawImage, prevReward, isGameEnd);
 			worker.SendMessage(message, res => { callback.Invoke(res == "t"); });
 		}
 
-		public void ShouldJump(WagenEnvironment env, Action<bool> callback)
-		{
-			var message = string.Join(",", new List<string>(ConvertStringArray(ConvertEnvironment(env))).ToArray());
-			message = "get_action:" + message;
-			worker.SendMessage(message, res => callback.Invoke(res == "t"));
-		}
+//		public void ShouldJump(WagenEnvironment env, Action<bool> callback)
+//		{
+//			var message = string.Join(",", new List<string>(ConvertStringArray(ConvertEnvironment(env))).ToArray());
+//			message = "get_action:" + message;
+//			worker.SendMessage(message, res => callback.Invoke(res == "t"));
+//		}
 
-		public void LearnWin(Action callback)
+		public void Learn(Action callback)
 		{
-			worker.SendMessage("learn_win:void", _ => callback.Invoke());
-		}
-
-		public void LearnLose(Action callback)
-		{
-			worker.SendMessage("learn_lose:void", _ => callback.Invoke());
+			worker.SendMessage("learn:", _ => callback.Invoke());
 		}
 
 		IEnumerable<string> ConvertStringArray<T>(IEnumerable<T> enumerable)

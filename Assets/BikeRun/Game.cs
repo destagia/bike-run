@@ -48,11 +48,7 @@ namespace BikeRun
 		{
 			Debug.Log("On Finish Game");
 			learning = true;
-			if (goal) {
-				wagenProxy.LearnWin(OnFinishLearning);
-			} else {
-				wagenProxy.LearnLose(OnFinishLearning);
-			}
+			wagenProxy.Learn(OnFinishLearning);
 		}
 
 		#endregion
