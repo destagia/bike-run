@@ -20,8 +20,9 @@ namespace BikeRun
 		/// <summary>
 		/// 現在の車の走行距離
 		/// </summary>
-		/// <value>The current mileage.</value>
-		float CurrentMileage { get; }
+		Vector3 Position { get; }
+
+		Vector3 Rotation { get; }
 
 		int AvailableJumpCount { get; }
 
@@ -31,10 +32,13 @@ namespace BikeRun
 		void MoveForward();
 
 		void Jump();
+
+		bool IsInSky { get; }
 	}
 
 	public interface IMap : IResetable
 	{
+		Vector3? GetNearestHolePosition(Vector3 position);
 	}
 
 	public interface IGameCallback
@@ -42,8 +46,7 @@ namespace BikeRun
 		/// <summary>
 		/// ゲームが終了した時（失敗、もしくは成功）に呼ばれるコールバック
 		/// </summary>
-		/// <param name="goal">ゴールならtrue、失敗ならfalse</param>
-		void OnFinishGame(bool goal);
+		void OnFinishGame();
 	}
 
 	public interface IController
@@ -60,6 +63,8 @@ namespace BikeRun
 
 		const float goalPointMileage = 300;
 
+		public float Reward { private set; get; }
+
 		public GameManager(ICar car, IMap map, IGameCallback gameCallback, IController controller)
 		{
 			this.map = map;
@@ -70,6 +75,10 @@ namespace BikeRun
 
 		bool finish;
 
+		bool carKeepInSky;
+		bool carJumpOverHole;
+		Vector3? nearestHole;
+
 		public void Update()
 		{
 			if (finish) {
@@ -77,13 +86,32 @@ namespace BikeRun
 				return;
 			}
 
+			if (!carKeepInSky && car.IsInSky) {
+				// Car was not in sky at previous frame
+				nearestHole = map.GetNearestHolePosition(car.Position);
+			} else if (carKeepInSky && car.IsInSky) {
+				if (nearestHole.HasValue && !carJumpOverHole && car.Position.x > nearestHole.Value.x) {
+					carJumpOverHole = true;
+				}
+			} else if (carKeepInSky && !car.IsInSky && carJumpOverHole) {
+				// Car jump over a hole and got the ground!
+				if (!(5 < car.Rotation.x && car.Rotation.x < 355)) {
+					Debug.Log("[GameManager] car jumped over the hole!");
+					Reward = 0.1f;
+				} else {
+					Debug.Log("[GameManager] car jumped, but failed");
+					Reward = -0.1f;
+				}
+			}
+			carKeepInSky = car.IsInSky;
+
 			if (car.IsCrashed) { // Game Over
-				gameCallback.OnFinishGame(false);
-				Debug.Log("Finish Game!");
+				Reward = -1;
+				gameCallback.OnFinishGame();
 				finish = true;
-				Debug.Log("Finish : " + finish);
-			} else if (car.CurrentMileage >= goalPointMileage) { // Game Clear
-				gameCallback.OnFinishGame(true);
+			} else if (car.Position.x >= goalPointMileage) { // Game Clear
+				Reward = 1;
+				gameCallback.OnFinishGame();
 				finish = true;
 			} else {
 				if (controller.ShouldJump()) {

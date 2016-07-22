@@ -20,6 +20,9 @@ namespace BikeRun
 
 		public int FrameCount { get; private set; }
 
+		public float RewardForPreviousAction { private get; set; }
+		public bool IsGameEnd { private get; set; } 
+
 		void Awake()
 		{
 			client = new WagenClient(host, port);
@@ -30,12 +33,14 @@ namespace BikeRun
 			var start = DateTime.Now;
 			var bytes = screenShooter.TakeGrayScaleShot(ScreenShotWidth, ScreenShotHeight);
 			bool? jump = null;
-			client.ShouldJump(bytes, 0, false, shouldJump => {
+			client.ShouldJump(bytes, RewardForPreviousAction, false, shouldJump => {
 				jump = shouldJump;
 			});
 			while (!jump.HasValue && (DateTime.Now - start).Milliseconds < 500) {
 			}
 			FrameCount += 1;
+			RewardForPreviousAction = 0;
+			IsGameEnd = false;
 			return jump.GetValueOrDefault();
 		}
 

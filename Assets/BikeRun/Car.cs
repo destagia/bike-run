@@ -45,6 +45,8 @@ namespace BikeRun
 			transform.position = new Vector3(transform.position.x + speed * Time.deltaTime, transform.position.y, 0);
 		}
 
+		public bool IsInSky { private set; get; }
+
 		#endregion
 
 		float lastJump;
@@ -73,6 +75,7 @@ namespace BikeRun
 
 		void OnCollisionEnter(Collision collision)
 		{
+			IsInSky = false;
 			var horizontal = false;
 			foreach (var cont in collision.contacts) {
 				if (cont.normal.x < 0) {
@@ -95,6 +98,11 @@ namespace BikeRun
 				Debug.Log("[GameManager] Game Over with over rotation");
 				IsCrashed = true;
 			}
+		}
+
+		void OnCollisionExit(Collision collision)
+		{
+			IsInSky = true;
 		}
 
 		void Update()

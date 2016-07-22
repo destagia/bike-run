@@ -37,8 +37,8 @@ namespace Wagen
 
 		public void SendMessage(string message, Action<string> callback)
 		{
-			var shortMessage = string.Join("", message.Take(30).Select(_ => _.ToString()).ToArray());
-			Debug.Log("[WagenSocketWorker] Send message : " + shortMessage);
+//			var shortMessage = string.Join("", message.Take(30).Select(_ => _.ToString()).ToArray());
+//			Debug.Log("[WagenSocketWorker] Send message : " + shortMessage);
 			var enc = Encoding.UTF8;
 			byte[] messageBytes = enc.GetBytes(message + "\n");
 			stream.Write(messageBytes, 0, messageBytes.Length);
@@ -53,7 +53,7 @@ namespace Wagen
 
 					if (!string.IsNullOrEmpty(response)) {
 						messageComing = true;
-						Debug.Log("[Wagen] Receive response! : " + response);
+//						Debug.Log("[Wagen] Receive response! : " + response);
 					} else if (messageComing) {
 						break;
 					}

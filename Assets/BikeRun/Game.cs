@@ -36,18 +36,20 @@ namespace BikeRun
 				return;
 			}
 			if (!learning) {
+				wagenProxy.RewardForPreviousAction = gameManager.Reward;
 				gameManager.Update();
 			} else {
-				Debug.Log("learning...");
+				Debug.Log("[Game] waiting learn...");
 			}
 		}
 
 		#region IGameCallback implementation
 
-		public void OnFinishGame(bool goal)
+		public void OnFinishGame()
 		{
-			Debug.Log("On Finish Game");
+			Debug.Log("[Game] Game was over!");
 			learning = true;
+			wagenProxy.IsGameEnd = true;
 			wagenProxy.Learn(OnFinishLearning);
 		}
 
@@ -55,7 +57,6 @@ namespace BikeRun
 
 		void OnFinishLearning()
 		{
-			Debug.Log("On Finish Learning");
 			learning = false;
 			onFinishHandler = gameManager.Restart;
 		}

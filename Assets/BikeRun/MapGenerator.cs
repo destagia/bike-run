@@ -56,11 +56,38 @@ namespace BikeRun
 				Destroy(part.GameObject);
 			}
 			carParts.Clear();
+			holes.Clear();
 			generatedLength = 20;
+		}
+
+		List<Vector3> holes;
+
+		public Vector3? GetNearestHolePosition(Vector3 position)
+		{
+			Vector3? nearestHole = null;
+			float nearestDistanceSqr = 0;
+			foreach (var hole in holes) {
+				if (hole.x < position.x) {
+					// Ignore the holes which are behind car
+					continue;
+				}
+				if (!nearestHole.HasValue) {
+					nearestHole = hole;
+					nearestDistanceSqr = (hole - position).sqrMagnitude;
+				} else {
+					var distanceSqr = (hole - position).sqrMagnitude;
+					if (distanceSqr < nearestDistanceSqr) {
+						nearestHole = hole;
+						nearestDistanceSqr = distanceSqr;
+					}
+				}
+			}
+			return nearestHole;
 		}
 
 		void Start()
 		{
+			holes = new List<Vector3>();
 		}
 
 		void Update()
@@ -87,7 +114,9 @@ namespace BikeRun
 					var holeRandom = Random.value;
 					if (holeRandom < holeProbability) {
 						var holeWidth = Random.value * (maxHoleWidth - minHoleWidth) + minHoleWidth;
+						var holePositionX = generatedLength + (holeWidth / 2.0f);
 						generatedLength += holeWidth;
+						holes.Add(new Vector3(holePositionX ,0, 0));
 					}
 				}
 			}
